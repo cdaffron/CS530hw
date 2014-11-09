@@ -303,3 +303,119 @@ LOOP:	LV V1, RtiPL // Load 4 elements of tiPL
 
 4.2: 56 instructions per loop iteration + 2 initialization instructions
      so, with seq_length = 500, the total instructions is 2 + 500(56) = 28,002
+
+4.9a:
+	for(i = 0; i < 300; i++)
+	{
+		c_re[i] = a_re[i] * b_re[i] - a_im[i] * b_im[i]
+		c_im[i] = a_re[i] * b_im[i] + a_im[i] * b_re[i]
+	}
+
+	Per loop iteration:
+		FLOPS: 6
+		MEM: 6
+		BYTES: 6 * 4 = 24 Bytes
+		Intensity = 6 / 24 = 0.25
+
+4.9b: Strip mining VMIPS code
+      Good Reference: http://www.cs.berkeley.edu/~kubitron/courses/cs252-S07/lectures/lec12-vector2.pdf
+		Assumptions:
+		  N ( 300 ) is stored in R1
+		  R2 is starting address of a_re
+		  R3 is starting address of b_re
+		  R4 is starting address of a_im
+		  R5 is starting address of b_im
+		  R6 is starting address of c_re
+		  R7 is starting address of c_im
+		Registers:
+		  R8 is the parital length
+
+
+		ANDI R8, R1, #63 // N mod 64
+		MTC1 VLR, R8
+LOOP:	LV V1, R2 // load elements of a_re
+		LV V2, R3 // load elements of b_re
+		LV V3, R4 // load elements of a_im
+		LV V4, R5 // load elements of b_im
+		MULVV.S V5, V1, V2 // V5 = a_re * b_re
+		MULVV.S V6, V3, V4 // V6 = a_im * b_im
+		SUBVV.S V5, V5, V6 // V5 = a_re * b_re - a_im * b_im
+		SV R6, V5 // store c_re
+
+		MULVV.S V5, V1, V4 // V5 = a_re * b_im
+		MULVV.S V6, V3, V2 // V6 = a_im * b_re
+		ADDVV.S V5, V5, V6
+		SV R7, V5
+
+		ADDI R9, R0, #4 // R9 = 4
+		MUL R9, R9, R8 // R9 = Length * 4 (bytes to advance pointer)
+		ADD R2, R2, R9 // advance a_re
+		ADD R3, R3, R9 // advance b_re
+		ADD R4, R4, R9 // advance a_im
+		ADD R5, R5, R9 // advance b_im
+		ADD R6, R6, R9 // advance c_re
+		ADD R7, R7, R9 // advance c_im
+		SUB R1, R1, R8 // decrease N by vector length
+
+		LI R8, #64 // set R8 to 64
+		MTC1 VLR, R8
+		BGTZ R1, LOOP
+
+4.11a:
+	
+	int vect_length = 64;
+	while( vect_length != 1 )
+	{
+		vect_length = vect_length / 2;
+		for(i = 0; i < vect_length; i++)
+		{
+			dot[i] = dot[i] + dot[i + vect_length];
+		}
+	}
+
+4.14a:
+	for(i = 0; i < 100; i++)
+	{
+		A[i] = B[2*i+4];
+		B[4*i+5] = A[i];
+	}
+
+	The statement does not have a loop-carried dependency because the assigned values of B are always odd indices and
+	the values of B used in the first statement is always even.
+
+4.14b:
+	for(i = 0; i < 100; i++)
+	{
+		A[i] = A[i] * B[i]; /* S1 */
+		B[i] = A[i] + c; /* S2 */
+		A[i] = C[i] * c; /* S3 */
+		C[i] = D[i] * A[i]; /* S4 */
+	}
+
+	True Dependencies:
+		S1 to S2: A[i]
+		S1 to S4: A[i]
+	Antidependencies:
+		S1 to S2: B[i] -- fixed
+		S1 to S3: A[i] -- fixed by output renaming
+		S2 to S3: A[i] -- fixed by output renaming
+		S3 to S4: C[i] -- fixed by adding instruction
+	Output Dependencies:
+		S1 to S3: A[i] -- fixed
+
+	Removed:
+	for(i = 0; i < 100; i++)
+	{
+		Z[i] = Z[i] * B[i]; // renamed A to Z to eliminate output dependency
+		B1[i] = Z[i] + c; // renamed A to Z because of previous line, renamed B to B1 for antidependence
+		C1[i] = C[i]
+		A[i] = C1[i] * c;
+		C[i] = D[i] * A[i];
+
+	}
+
+4.16:
+	Clock: 1.5 GHz
+	Contains 16 SIMD processors, each with 16 SP FPUs
+
+	Total = (1.5)(16)(16) = 384 GFLOP/sec
