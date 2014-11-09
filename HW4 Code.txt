@@ -25,26 +25,6 @@ A => R19, C => R20, G => R21, T => R22
 h => R23
 tiPL => RtiPL, tiPR => RtiPR, clL => RclL, clR => RclR, clP => RclP
 
-		#ADDI R3, R0, #0 // Initialize AA to 0
-		#ADDI R4, R0, #1 // Initialize AC to 1
-		#ADDI R5, R0, #2 // Initialize AG to 2
-		#ADDI R6, R0, #3 // Initialize AT to 3
-		#ADDI R7, R0, #4 // Initialize CA to 4
-		#ADDI R8, R0, #5 // Initialize CC to 5
-		#ADDI R9, R0, #6 // Initialize CG to 6
-		#ADDI R10, R0, #7 // Initialize CT to 7
-		#ADDI R11, R0, #8 // Initialize GA to 8
-		#ADDI R12, R0, #9 // Initialize GC to 9
-		#ADDI R13, R0, #10 // Initialize GG to 10
-		#ADDI R14, R0, #11 // Initialize GT to 11
-		#ADDI R15, R0, #12 // Initialize TA to 12
-		#ADDI R16, R0, #13 // Initialize TC to 13
-		#ADDI R17, R0, #14 // Initialize TG to 14
-		#ADDI R18, R0, #15 // Initialize TT to 15
-		#ADDI R19, R0, #0 // Initialize A to 0
-		#ADDI R20, R0, #1 // Initialize C to 1
-		#ADDI R21, R0, #2 // Initialize G to 2
-		#ADDR R22, R0, #3 // Initialize T to 3
 		ADDI R2, R0, #0  // Initialize k to be 0
 		ADDI R23, R0, R1 // Store stopping point in R23
 LOOP:	L.S F1, 0(RtiPL) // Load tiPL[AA] into F1
@@ -238,5 +218,88 @@ LOOP:	L.S F1, 0(RtiPL) // Load tiPL[AA] into F1
 		ADDI R2, R2, #1
 		BNE R2, R1, LOOP
 
+4.2: 138 instructions per loop iteration + 2 initialization instructions
+     so, with seq_length = 500, the total instructions is 2 + 500(138) = 69,002
+
 VMIPS:
 
+		ADDI VL, R0, #4 // Set the vector length to 4
+		ADDI R2, R0, #0 // Initialize k to be 0
+LOOP:	LV V1, RtiPL // Load 4 elements of tiPL
+		LV V2, RclL // Load 4 elements of clL
+		MULVV.S V1, V1, V2 // Multiply tiPL and clL
+		SUMR.S F1, V1 // Summation
+
+		LV V2, RtiPR // Load 4 elements of tiPR
+		LV V3, RclR // Load 4 elements of clR
+		MULVV.S V2, V2, V3 // Multiply tiPR and clR
+		SUMR.S F2, V2 // Summation
+
+		MUL.S F1, F1, F2 // Multiply summations
+
+		S.S F1, RclP // Store in clP
+
+		ADDI RclP, RclP, #4 // Increment clP
+		ADDI RtiPL, RtiPL, #16 // Increment tiPL by 4
+		ADDI RtiPR, RtiPR, #16 // Increment tiPR by 4
+
+		LV V1, RtiPL
+		LV V2, RclL
+		MULVV.S V1, V1, V2
+		SUMR.S F1, V1
+
+		LV V2, RtiPR
+		LV V3, RclR
+		MULVV.S V2, V2, V3
+		SUMR.S F2, V2
+
+		MUL.S F1, F1, F2
+
+		S.S F1, RclP
+
+		ADDI RclP, RclP, #4
+		ADDI RtiPL, RtiPL, #16
+		ADDI RtiPR, RtiPR, #16
+
+		LV V1, RtiPL
+		LV V2, RclL
+		MULVV.S V1, V1, V2
+		SUMR.S F1, V1
+
+		LV V2, RtiPR
+		LV V3, RclR
+		MULVV.S V2, V2, V3
+		SUMR.S F2, V2
+
+		MUL.S F1, F1, F2
+
+		S.S F1, RclP
+
+		ADDI RclP, RclP, #4
+		ADDI RtiPL, RtiPL, #16
+		ADDI RtiPR, RtiPR, #16
+
+		LV V1, RtiPL
+		LV V2, RclL
+		MULVV.S V1, V1, V2
+		SUMR.S F1, V1
+
+		LV V2, RtiPR
+		LV V3, RclR
+		MULVV.S V2, V2, v3
+		SUMR.S F2, V2
+
+		MUL.S F1, F1, F2
+
+		S.S F1, RclP
+
+		ADDI RclP, RclP, #4
+		ADDI RtiPL, RtiPL, #16
+		ADDI RtiPR, RtiPR, #16
+		ADDI RclL, RclL, #16
+		ADDI RclR, RclR, #16
+		ADDI R2, R2, #1
+		BNE R2, R1, LOOP
+
+4.2: 56 instructions per loop iteration + 2 initialization instructions
+     so, with seq_length = 500, the total instructions is 2 + 500(56) = 28,002
