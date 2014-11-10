@@ -394,7 +394,7 @@ LOOP:	LV V1, R2 // load elements of a_re
 
 	True Dependencies:
 		S1 to S2: A[i]
-		S1 to S4: A[i]
+		S3 to S4: A[i]
 	Antidependencies:
 		S1 to S2: B[i] -- fixed
 		S1 to S3: A[i] -- fixed by output renaming
