@@ -213,8 +213,8 @@ LOOP:	L.S F1, 0(RtiPL) // Load tiPL[AA] into F1
 
 		ADDI RclL, RclL, #16
 		ADDI RclR, RclR, #16
-		ADDI RtiPL, RtiPL, #16
-		ADDI RtiPR, RtiPR, #16
+		ADDI RtiPL, RtiPL, #64
+		ADDI RtiPR, RtiPR, #64
 		ADDI R2, R2, #1
 		BNE R2, R1, LOOP
 
