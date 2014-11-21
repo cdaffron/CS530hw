@@ -3,6 +3,7 @@
 #include "device_launch_parameters.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 
 cudaError_t addWithCuda(int *c, const int *a, const int *b, unsigned int size);
 
@@ -12,30 +13,209 @@ __global__ void addKernel(int *c, const int *a, const int *b)
     c[i] = a[i] + b[i];
 }
 
+__device__ void idxToCoords(const int idx, int *row, int *col, int rows, int cols)
+{
+  *row = idx / rows;
+  *col = idx % cols;
+  return;
+}
+
+__device__ void coordsToIdx(const int row, const int col, int *idx, int rows, int cols)
+{
+  *idx = row * cols + col;
+}
+
+__global__ void conwayThread(char *oldState, char *newState, int rows, int cols)
+{
+  int idx = threadIdx.x + blockIdx.x * blockDim.x;
+  //printf("This is thread %d\n", idx);
+
+  int colIdx;
+  int rowIdx;
+  int newIdx;
+
+  idxToCoords(idx, &rowIdx, &colIdx, rows, cols);
+  coordsToIdx(rowIdx, colIdx, &newIdx, rows, cols);
+
+  printf("Thread %d: row %d, col %d, newIdx %d\n", idx, rowIdx, colIdx, newIdx);
+
+  int numLiveNeighbors = 0;
+  int tempRow;
+  int tempCol;
+  int tempIdx;
+
+  if (colIdx != 0)
+  {
+    tempRow = rowIdx;
+    tempCol = colIdx - 1;
+    coordsToIdx(tempRow, tempCol, &tempIdx, rows, cols);
+    if (oldState[tempIdx] == 1)
+      numLiveNeighbors++;
+  }
+  if (colIdx != 0 && rowIdx != 0)
+  {
+    tempRow = rowIdx - 1;
+    tempCol = colIdx - 1;
+    coordsToIdx(tempRow, tempCol, &tempIdx, rows, cols);
+    if (oldState[tempIdx] == 1)
+      numLiveNeighbors++;
+  }
+  if (rowIdx != 0)
+  {
+    tempRow = rowIdx - 1;
+    tempCol = colIdx;
+    coordsToIdx(tempRow, tempCol, &tempIdx, rows, cols);
+    if (oldState[tempIdx] == 1)
+      numLiveNeighbors++;
+  }
+  if (rowIdx != 0 && colIdx != cols - 1)
+  {
+    tempRow = rowIdx - 1;
+    tempCol = colIdx + 1;
+    coordsToIdx(tempRow, tempCol, &tempIdx, rows, cols);
+    if (oldState[tempIdx] == 1)
+      numLiveNeighbors++;
+  }
+  if (colIdx != cols - 1)
+  {
+    tempRow = rowIdx;
+    tempCol = colIdx + 1;
+    coordsToIdx(tempRow, tempCol, &tempIdx, rows, cols);
+    if (oldState[tempIdx] == 1)
+      numLiveNeighbors++;
+  }
+  if (colIdx != cols - 1 && rowIdx != rows - 1)
+  {
+    tempRow = rowIdx + 1;
+    tempCol = colIdx + 1;
+    coordsToIdx(tempRow, tempCol, &tempIdx, rows, cols);
+    if (oldState[tempIdx] == 1)
+      numLiveNeighbors++;
+  }
+  if (rowIdx != rows - 1)
+  {
+    tempRow = rowIdx + 1;
+    tempCol = colIdx;
+    coordsToIdx(tempRow, tempCol, &tempIdx, rows, cols);
+    if (oldState[tempIdx] == 1)
+      numLiveNeighbors++;
+  }
+  if (rowIdx != rows - 1 && colIdx != 0)
+  {
+    tempRow = rowIdx + 1;
+    tempCol = colIdx - 1;
+    coordsToIdx(tempRow, tempCol, &tempIdx, rows, cols);
+    if (oldState[tempIdx] == 1)
+      numLiveNeighbors++;
+  }
+
+  if (oldState[idx] == 1)
+  {
+    if (numLiveNeighbors < 2 || numLiveNeighbors > 3)
+    {
+      newState[idx] = 0;
+    }
+    else
+    {
+      newState[idx] = 1;
+    }
+  }
+  else
+  {
+    if (numLiveNeighbors == 3)
+    {
+      newState[idx] = 1;
+    }
+    else
+    {
+      newState[idx] = 0;
+    }
+  }
+}
+
 int main()
 {
-    const int arraySize = 5;
-    const int a[arraySize] = { 1, 2, 3, 4, 5 };
-    const int b[arraySize] = { 10, 20, 30, 40, 50 };
-    int c[arraySize] = { 0 };
+    //const int arraySize = 5;
+    //const int a[arraySize] = { 1, 2, 3, 4, 5 };
+    //const int b[arraySize] = { 10, 20, 30, 40, 50 };
+    //int c[arraySize] = { 0 };
+    const int boardSize = 256 * 256;
+    char prevState[boardSize];
+    char nextState[boardSize];
 
-    // Add vectors in parallel.
-    cudaError_t cudaStatus = addWithCuda(c, a, b, arraySize);
-    if (cudaStatus != cudaSuccess) {
-        fprintf(stderr, "addWithCuda failed!");
-        return 1;
+    char *gpu_prevState = 0;
+    char *gpu_nextState = 0;
+
+    cudaError_t errors;
+    errors = cudaSetDevice(0);
+
+    if (errors != cudaSuccess)
+    {
+      printf("Error setting device\n");
+      exit(0);
     }
 
-    printf("{1,2,3,4,5} + {10,20,30,40,50} = {%d,%d,%d,%d,%d}\n",
-        c[0], c[1], c[2], c[3], c[4]);
+    errors = cudaMalloc((void **)&gpu_prevState, boardSize * sizeof(char));
+    if (errors != cudaSuccess)
+    {
+      printf("Error allocating previous state\n");
+      exit(0);
+    }
+
+    errors = cudaMalloc((void **)&gpu_nextState, boardSize * sizeof(char));
+    if (errors != cudaSuccess)
+    {
+      printf("Error allocating next state\n");
+      exit(0);
+    }
+
+    errors = cudaMemcpy(gpu_prevState, prevState, boardSize * sizeof(char), cudaMemcpyHostToDevice);
+    if (errors != cudaSuccess)
+    {
+      printf("Error copying previous state\n");
+      exit(0);
+    }
+
+    errors = cudaMemcpy(gpu_nextState, nextState, boardSize * sizeof(char), cudaMemcpyHostToDevice);
+    if (errors != cudaSuccess)
+    {
+      printf("Error copying next state\n");
+      exit(0);
+    }
+
+    conwayThread <<<2, 4 >>>(gpu_prevState, gpu_nextState, 4, 4);
+
+    errors = cudaGetLastError();
+    if (errors != cudaSuccess)
+    {
+      printf("Error launching kernel\n");
+      exit(0);
+    }
+
+    errors = cudaDeviceSynchronize();
+    if (errors != cudaSuccess)
+    {
+      printf("Error synchronizing device\n");
+      exit(0);
+    }
+
+    // Add vectors in parallel.
+    //cudaError_t cudaStatus = addWithCuda(c, a, b, arraySize);
+    //if (cudaStatus != cudaSuccess) {
+    //    fprintf(stderr, "addWithCuda failed!");
+    //    return 1;
+    //}
+
+    //printf("{1,2,3,4,5} + {10,20,30,40,50} = {%d,%d,%d,%d,%d}\n",
+    //    c[0], c[1], c[2], c[3], c[4]);
 
     // cudaDeviceReset must be called before exiting in order for profiling and
     // tracing tools such as Nsight and Visual Profiler to show complete traces.
-    cudaStatus = cudaDeviceReset();
-    if (cudaStatus != cudaSuccess) {
-        fprintf(stderr, "cudaDeviceReset failed!");
-        return 1;
-    }
+    //cudaStatus = cudaDeviceReset();
+    //if (cudaStatus != cudaSuccess) {
+    //    fprintf(stderr, "cudaDeviceReset failed!");
+    //    return 1;
+    //}
 
     return 0;
 }
