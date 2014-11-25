@@ -180,9 +180,9 @@ int main()
     //const int a[arraySize] = { 1, 2, 3, 4, 5 };
     //const int b[arraySize] = { 10, 20, 30, 40, 50 };
     //int c[arraySize] = { 0 };
-    const int iterations = 4;
-    const int rows = 64;
-    const int cols = 64;
+    const int iterations = 100;
+    const int rows = 256;
+    const int cols = 256;
     const int boardSize = rows * cols;
     char prevState[boardSize];
     char nextState[boardSize];
@@ -252,9 +252,12 @@ int main()
       }
 
       cudaMemcpy(nextState, gpu_nextState, boardSize * sizeof(char), cudaMemcpyDeviceToHost);
-      printBoard(nextState, rows, cols);
+      //printBoard(nextState, rows, cols);
       cudaMemcpy(gpu_prevState, nextState, boardSize * sizeof(char), cudaMemcpyHostToDevice);
     }
+
+    printf("Final state\n");
+    printBoard(nextState, rows, cols);
 
 
     // cudaDeviceReset must be called before exiting in order for profiling and
