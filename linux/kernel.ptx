@@ -1,0 +1,396 @@
+	.version 1.4
+	.target sm_10, map_f64_to_f32
+	// compiled with /pkgs/cuda-5.0.35/open64/lib//be
+	// nvopencc 4.1 built on 2012-09-21
+
+	//-----------------------------------------------------------
+	// Compiling /tmp/tmpxft_00002da7_00000000-9_kernel.cpp3.i (/tmp/ccBI#.4FO1QP)
+	//-----------------------------------------------------------
+
+	//-----------------------------------------------------------
+	// Options:
+	//-----------------------------------------------------------
+	//  Target:ptx, ISA:sm_10, Endian:little, Pointer Size:64
+	//  -O3	(Optimization level)
+	//  -g0	(Debug level)
+	//  -m2	(Report advisories)
+	//-----------------------------------------------------------
+
+	.file	1	"<command-line>"
+	.file	2	"/tmp/tmpxft_00002da7_00000000-8_kernel.cudafe2.gpu"
+	.file	3	"/usr/lib/gcc/x86_64-redhat-linux/4.4.7/include/stddef.h"
+	.file	4	"/pkgs/cuda-5.0.35/bin/../include/crt/device_runtime.h"
+	.file	5	"/pkgs/cuda-5.0.35/bin/../include/host_defines.h"
+	.file	6	"/pkgs/cuda-5.0.35/bin/../include/builtin_types.h"
+	.file	7	"/pkgs/cuda-5.0.35/bin/../include/device_types.h"
+	.file	8	"/pkgs/cuda-5.0.35/bin/../include/driver_types.h"
+	.file	9	"/pkgs/cuda-5.0.35/bin/../include/surface_types.h"
+	.file	10	"/pkgs/cuda-5.0.35/bin/../include/texture_types.h"
+	.file	11	"/pkgs/cuda-5.0.35/bin/../include/vector_types.h"
+	.file	12	"/pkgs/cuda-5.0.35/bin/../include/device_launch_parameters.h"
+	.file	13	"/pkgs/cuda-5.0.35/bin/../include/crt/storage_class.h"
+	.file	14	"kernel.cu"
+	.file	15	"/pkgs/cuda-5.0.35/bin/../include/common_functions.h"
+	.file	16	"/pkgs/cuda-5.0.35/bin/../include/math_functions.h"
+	.file	17	"/pkgs/cuda-5.0.35/bin/../include/math_constants.h"
+	.file	18	"/pkgs/cuda-5.0.35/bin/../include/device_functions.h"
+	.file	19	"/pkgs/cuda-5.0.35/bin/../include/sm_11_atomic_functions.h"
+	.file	20	"/pkgs/cuda-5.0.35/bin/../include/sm_12_atomic_functions.h"
+	.file	21	"/pkgs/cuda-5.0.35/bin/../include/sm_13_double_functions.h"
+	.file	22	"/pkgs/cuda-5.0.35/bin/../include/sm_20_atomic_functions.h"
+	.file	23	"/pkgs/cuda-5.0.35/bin/../include/sm_35_atomic_functions.h"
+	.file	24	"/pkgs/cuda-5.0.35/bin/../include/sm_20_intrinsics.h"
+	.file	25	"/pkgs/cuda-5.0.35/bin/../include/sm_30_intrinsics.h"
+	.file	26	"/pkgs/cuda-5.0.35/bin/../include/sm_35_intrinsics.h"
+	.file	27	"/pkgs/cuda-5.0.35/bin/../include/surface_functions.h"
+	.file	28	"/pkgs/cuda-5.0.35/bin/../include/texture_fetch_functions.h"
+	.file	29	"/pkgs/cuda-5.0.35/bin/../include/texture_indirect_functions.h"
+	.file	30	"/pkgs/cuda-5.0.35/bin/../include/surface_indirect_functions.h"
+	.file	31	"/pkgs/cuda-5.0.35/bin/../include/math_functions_dbl_ptx1.h"
+
+
+	.entry _Z9addKernelPiPKiS1_ (
+		.param .u64 __cudaparm__Z9addKernelPiPKiS1__c,
+		.param .u64 __cudaparm__Z9addKernelPiPKiS1__a,
+		.param .u64 __cudaparm__Z9addKernelPiPKiS1__b)
+	{
+	.reg .u32 %r<6>;
+	.reg .u64 %rd<10>;
+	.loc	14	10	0
+ //   6  #include <stdlib.h>
+ //   7  
+ //   8  cudaError_t addWithCuda(int *c, const int *a, const int *b, unsigned int size);
+ //   9  
+ //  10  __global__ void addKernel(int *c, const int *a, const int *b)
+$LDWbegin__Z9addKernelPiPKiS1_:
+	.loc	14	13	0
+ //  11  {
+ //  12      int i = threadIdx.x;
+ //  13      c[i] = a[i] + b[i];
+	cvt.s32.u16 	%r1, %tid.x;
+	cvt.s64.s32 	%rd1, %r1;
+	mul.wide.s32 	%rd2, %r1, 4;
+	ld.param.u64 	%rd3, [__cudaparm__Z9addKernelPiPKiS1__a];
+	add.u64 	%rd4, %rd3, %rd2;
+	ld.global.s32 	%r2, [%rd4+0];
+	ld.param.u64 	%rd5, [__cudaparm__Z9addKernelPiPKiS1__b];
+	add.u64 	%rd6, %rd5, %rd2;
+	ld.global.s32 	%r3, [%rd6+0];
+	add.s32 	%r4, %r2, %r3;
+	ld.param.u64 	%rd7, [__cudaparm__Z9addKernelPiPKiS1__c];
+	add.u64 	%rd8, %rd7, %rd2;
+	st.global.s32 	[%rd8+0], %r4;
+	.loc	14	14	0
+ //  14  }
+	exit;
+$LDWend__Z9addKernelPiPKiS1_:
+	} // _Z9addKernelPiPKiS1_
+
+	.entry _Z12conwayThreadPcS_ii (
+		.param .u64 __cudaparm__Z12conwayThreadPcS_ii_oldState,
+		.param .u64 __cudaparm__Z12conwayThreadPcS_ii_newState,
+		.param .s32 __cudaparm__Z12conwayThreadPcS_ii_rows,
+		.param .s32 __cudaparm__Z12conwayThreadPcS_ii_cols)
+	{
+	.reg .u16 %rh<4>;
+	.reg .u32 %r<82>;
+	.reg .u64 %rd<23>;
+	.reg .pred %p<19>;
+	.loc	14	28	0
+ //  24  {
+ //  25    *idx = row * cols + col;
+ //  26  }
+ //  27  
+ //  28  __global__ void conwayThread(char *oldState, char *newState, int rows, int cols)
+$LDWbegin__Z12conwayThreadPcS_ii:
+	mov.u16 	%rh1, %ctaid.x;
+	mov.u16 	%rh2, %ntid.x;
+	mul.wide.u16 	%r1, %rh1, %rh2;
+	cvt.u32.u16 	%r2, %tid.x;
+	add.u32 	%r3, %r2, %r1;
+	ld.param.s32 	%r4, [__cudaparm__Z12conwayThreadPcS_ii_cols];
+	ld.param.s32 	%r5, [__cudaparm__Z12conwayThreadPcS_ii_rows];
+	mul.lo.s32 	%r6, %r4, %r5;
+	setp.lt.s32 	%p1, %r3, %r6;
+	@%p1 bra 	$Lt_1_16642;
+	bra.uni 	$LBB24__Z12conwayThreadPcS_ii;
+$Lt_1_16642:
+	ld.param.s32 	%r4, [__cudaparm__Z12conwayThreadPcS_ii_cols];
+	.loc	14	40	0
+ //  36    int rowIdx;
+ //  37    int newIdx;
+ //  38  
+ //  39    idxToCoords(idx, &rowIdx, &colIdx, rows, cols);
+ //  40    coordsToIdx(rowIdx, colIdx, &newIdx, rows, cols);
+	rem.s32 	%r7, %r3, %r4;
+	.loc	14	28	0
+	ld.param.s32 	%r5, [__cudaparm__Z12conwayThreadPcS_ii_rows];
+	.loc	14	40	0
+	div.s32 	%r8, %r3, %r5;
+	mov.s32 	%r9, 0;
+	setp.ne.s32 	%p2, %r7, %r9;
+	ld.param.u64 	%rd1, [__cudaparm__Z12conwayThreadPcS_ii_oldState];
+	@!%p2 bra 	$Lt_1_17410;
+	.loc	14	28	0
+	ld.param.s32 	%r4, [__cudaparm__Z12conwayThreadPcS_ii_cols];
+	.loc	14	55	0
+ //  51    //printf("Thread: %d continuing\n", idx);
+ //  52  
+ //  53    if (colIdx != 0)
+ //  54    {
+ //  55      tempRow = rowIdx;
+	mul.lo.s32 	%r10, %r8, %r4;
+	add.s32 	%r11, %r7, %r10;
+	cvt.s64.s32 	%rd2, %r11;
+	.loc	14	40	0
+	ld.param.u64 	%rd1, [__cudaparm__Z12conwayThreadPcS_ii_oldState];
+	.loc	14	55	0
+	add.u64 	%rd3, %rd2, %rd1;
+	ld.global.s8 	%r12, [%rd3+-1];
+	mov.s32 	%r13, 1;
+	set.eq.u32.s32 	%r14, %r12, %r13;
+	neg.s32 	%r15, %r14;
+	bra.uni 	$Lt_1_17154;
+$Lt_1_17410:
+	mov.s32 	%r15, 0;
+$Lt_1_17154:
+	mov.s32 	%r16, 0;
+	setp.ne.s32 	%p3, %r8, %r16;
+	selp.s32 	%r17, 1, 0, %p2;
+	selp.s32 	%r18, 1, 0, %p3;
+	and.b32 	%r19, %r17, %r18;
+	mov.u32 	%r20, 0;
+	setp.eq.s32 	%p4, %r19, %r20;
+	@%p4 bra 	$Lt_1_17666;
+	.loc	14	65	0
+ //  61        numLiveNeighbors++;
+ //  62    }
+ //  63    if (colIdx != 0 && rowIdx != 0)
+ //  64    {
+ //  65      tempRow = rowIdx - 1;
+	add.s32 	%r21, %r15, 1;
+	sub.s32 	%r22, %r8, 1;
+	.loc	14	28	0
+	ld.param.s32 	%r4, [__cudaparm__Z12conwayThreadPcS_ii_cols];
+	.loc	14	65	0
+	mul.lo.s32 	%r23, %r4, %r22;
+	add.s32 	%r24, %r7, %r23;
+	cvt.s64.s32 	%rd4, %r24;
+	.loc	14	40	0
+	ld.param.u64 	%rd1, [__cudaparm__Z12conwayThreadPcS_ii_oldState];
+	.loc	14	65	0
+	add.u64 	%rd5, %rd4, %rd1;
+	ld.global.s8 	%r25, [%rd5+-1];
+	mov.s32 	%r26, 1;
+	setp.eq.s32 	%p5, %r25, %r26;
+	selp.s32 	%r15, %r21, %r15, %p5;
+$Lt_1_17666:
+	@!%p3 bra 	$Lt_1_18178;
+	.loc	14	75	0
+ //  71        numLiveNeighbors++;
+ //  72    }
+ //  73    if (rowIdx != 0)
+ //  74    {
+ //  75      tempRow = rowIdx - 1;
+	add.s32 	%r27, %r15, 1;
+	sub.s32 	%r28, %r8, 1;
+	.loc	14	28	0
+	ld.param.s32 	%r4, [__cudaparm__Z12conwayThreadPcS_ii_cols];
+	.loc	14	75	0
+	mul.lo.s32 	%r29, %r4, %r28;
+	add.s32 	%r30, %r7, %r29;
+	cvt.s64.s32 	%rd6, %r30;
+	.loc	14	40	0
+	ld.param.u64 	%rd1, [__cudaparm__Z12conwayThreadPcS_ii_oldState];
+	.loc	14	75	0
+	add.u64 	%rd7, %rd6, %rd1;
+	ld.global.s8 	%r31, [%rd7+0];
+	mov.s32 	%r32, 1;
+	setp.eq.s32 	%p6, %r31, %r32;
+	selp.s32 	%r15, %r27, %r15, %p6;
+$Lt_1_18178:
+	.loc	14	28	0
+	ld.param.s32 	%r4, [__cudaparm__Z12conwayThreadPcS_ii_cols];
+	.loc	14	75	0
+	sub.s32 	%r33, %r4, 1;
+	setp.ne.s32 	%p7, %r33, %r7;
+	selp.s32 	%r34, 1, 0, %p7;
+	and.b32 	%r35, %r34, %r18;
+	mov.u32 	%r36, 0;
+	setp.eq.s32 	%p8, %r35, %r36;
+	@%p8 bra 	$Lt_1_18690;
+	.loc	14	85	0
+ //  81        numLiveNeighbors++;
+ //  82    }
+ //  83    if (rowIdx != 0 && colIdx != cols - 1)
+ //  84    {
+ //  85      tempRow = rowIdx - 1;
+	add.s32 	%r37, %r15, 1;
+	sub.s32 	%r38, %r8, 1;
+	.loc	14	28	0
+	ld.param.s32 	%r4, [__cudaparm__Z12conwayThreadPcS_ii_cols];
+	.loc	14	85	0
+	mul.lo.s32 	%r39, %r4, %r38;
+	add.s32 	%r40, %r7, %r39;
+	cvt.s64.s32 	%rd8, %r40;
+	.loc	14	40	0
+	ld.param.u64 	%rd1, [__cudaparm__Z12conwayThreadPcS_ii_oldState];
+	.loc	14	85	0
+	add.u64 	%rd9, %rd8, %rd1;
+	ld.global.s8 	%r41, [%rd9+1];
+	mov.s32 	%r42, 1;
+	setp.eq.s32 	%p9, %r41, %r42;
+	selp.s32 	%r15, %r37, %r15, %p9;
+$Lt_1_18690:
+	@!%p7 bra 	$Lt_1_19202;
+	.loc	14	95	0
+ //  91        numLiveNeighbors++;
+ //  92    }
+ //  93    if (colIdx != cols - 1)
+ //  94    {
+ //  95      tempRow = rowIdx;
+	add.s32 	%r43, %r15, 1;
+	.loc	14	28	0
+	ld.param.s32 	%r4, [__cudaparm__Z12conwayThreadPcS_ii_cols];
+	.loc	14	95	0
+	mul.lo.s32 	%r44, %r8, %r4;
+	add.s32 	%r45, %r7, %r44;
+	cvt.s64.s32 	%rd10, %r45;
+	.loc	14	40	0
+	ld.param.u64 	%rd1, [__cudaparm__Z12conwayThreadPcS_ii_oldState];
+	.loc	14	95	0
+	add.u64 	%rd11, %rd10, %rd1;
+	ld.global.s8 	%r46, [%rd11+1];
+	mov.s32 	%r47, 1;
+	setp.eq.s32 	%p10, %r46, %r47;
+	selp.s32 	%r15, %r43, %r15, %p10;
+$Lt_1_19202:
+	.loc	14	28	0
+	ld.param.s32 	%r5, [__cudaparm__Z12conwayThreadPcS_ii_rows];
+	.loc	14	95	0
+	sub.s32 	%r48, %r5, 1;
+	setp.ne.s32 	%p11, %r48, %r8;
+	selp.s32 	%r49, 1, 0, %p11;
+	and.b32 	%r50, %r34, %r49;
+	mov.u32 	%r51, 0;
+	setp.eq.s32 	%p12, %r50, %r51;
+	@%p12 bra 	$Lt_1_19714;
+	.loc	14	105	0
+ // 101        numLiveNeighbors++;
+ // 102    }
+ // 103    if (colIdx != cols - 1 && rowIdx != rows - 1)
+ // 104    {
+ // 105      tempRow = rowIdx + 1;
+	add.s32 	%r52, %r15, 1;
+	add.s32 	%r53, %r8, 1;
+	.loc	14	28	0
+	ld.param.s32 	%r4, [__cudaparm__Z12conwayThreadPcS_ii_cols];
+	.loc	14	105	0
+	mul.lo.s32 	%r54, %r4, %r53;
+	add.s32 	%r55, %r7, %r54;
+	cvt.s64.s32 	%rd12, %r55;
+	.loc	14	40	0
+	ld.param.u64 	%rd1, [__cudaparm__Z12conwayThreadPcS_ii_oldState];
+	.loc	14	105	0
+	add.u64 	%rd13, %rd12, %rd1;
+	ld.global.s8 	%r56, [%rd13+1];
+	mov.s32 	%r57, 1;
+	setp.eq.s32 	%p13, %r56, %r57;
+	selp.s32 	%r15, %r52, %r15, %p13;
+$Lt_1_19714:
+	@!%p11 bra 	$Lt_1_20226;
+	.loc	14	115	0
+ // 111        numLiveNeighbors++;
+ // 112    }
+ // 113    if (rowIdx != rows - 1)
+ // 114    {
+ // 115      tempRow = rowIdx + 1;
+	add.s32 	%r58, %r15, 1;
+	add.s32 	%r59, %r8, 1;
+	.loc	14	28	0
+	ld.param.s32 	%r4, [__cudaparm__Z12conwayThreadPcS_ii_cols];
+	.loc	14	115	0
+	mul.lo.s32 	%r60, %r4, %r59;
+	add.s32 	%r61, %r7, %r60;
+	cvt.s64.s32 	%rd14, %r61;
+	.loc	14	40	0
+	ld.param.u64 	%rd1, [__cudaparm__Z12conwayThreadPcS_ii_oldState];
+	.loc	14	115	0
+	add.u64 	%rd15, %rd14, %rd1;
+	ld.global.s8 	%r62, [%rd15+0];
+	mov.s32 	%r63, 1;
+	setp.eq.s32 	%p14, %r62, %r63;
+	selp.s32 	%r15, %r58, %r15, %p14;
+$Lt_1_20226:
+	and.b32 	%r64, %r17, %r49;
+	mov.u32 	%r65, 0;
+	setp.eq.s32 	%p15, %r64, %r65;
+	@%p15 bra 	$Lt_1_20738;
+	.loc	14	125	0
+ // 121        numLiveNeighbors++;
+ // 122    }
+ // 123    if (rowIdx != rows - 1 && colIdx != 0)
+ // 124    {
+ // 125      tempRow = rowIdx + 1;
+	add.s32 	%r66, %r15, 1;
+	add.s32 	%r67, %r8, 1;
+	.loc	14	28	0
+	ld.param.s32 	%r4, [__cudaparm__Z12conwayThreadPcS_ii_cols];
+	.loc	14	125	0
+	mul.lo.s32 	%r68, %r4, %r67;
+	add.s32 	%r69, %r7, %r68;
+	cvt.s64.s32 	%rd16, %r69;
+	.loc	14	40	0
+	ld.param.u64 	%rd1, [__cudaparm__Z12conwayThreadPcS_ii_oldState];
+	.loc	14	125	0
+	add.u64 	%rd17, %rd16, %rd1;
+	ld.global.s8 	%r70, [%rd17+-1];
+	mov.s32 	%r71, 1;
+	setp.eq.s32 	%p16, %r70, %r71;
+	selp.s32 	%r15, %r66, %r15, %p16;
+$Lt_1_20738:
+	cvt.s64.s32 	%rd18, %r3;
+	ld.param.u64 	%rd19, [__cudaparm__Z12conwayThreadPcS_ii_newState];
+	add.u64 	%rd20, %rd18, %rd19;
+	.loc	14	40	0
+	ld.param.u64 	%rd1, [__cudaparm__Z12conwayThreadPcS_ii_oldState];
+	.loc	14	125	0
+	add.u64 	%rd21, %rd18, %rd1;
+	ld.global.s8 	%r72, [%rd21+0];
+	mov.u32 	%r73, 1;
+	setp.ne.s32 	%p17, %r72, %r73;
+	@%p17 bra 	$Lt_1_21506;
+	.loc	14	136	0
+ // 132    }
+ // 133  
+ // 134    if (oldState[idx] == 1)
+ // 135    {
+ // 136      if (numLiveNeighbors < 2 || numLiveNeighbors > 3)
+	sub.u32 	%r74, %r15, 2;
+	mov.u32 	%r75, 1;
+	set.le.u32.u32 	%r76, %r74, %r75;
+	neg.s32 	%r77, %r76;
+	st.global.s8 	[%rd20+0], %r77;
+	bra.uni 	$LBB24__Z12conwayThreadPcS_ii;
+$Lt_1_21506:
+	.loc	14	147	0
+ // 143      }
+ // 144    }
+ // 145    else
+ // 146    {
+ // 147      if (numLiveNeighbors == 3)
+	mov.s32 	%r78, 3;
+	set.eq.u32.s32 	%r79, %r15, %r78;
+	neg.s32 	%r80, %r79;
+	st.global.s8 	[%rd20+0], %r80;
+$LBB24__Z12conwayThreadPcS_ii:
+	.loc	14	157	0
+ // 153        newState[idx] = 0;
+ // 154      }
+ // 155    }
+ // 156    //printf("Cell %d has %d live neighbors\n", idx, numLiveNeighbors);
+ // 157  }
+	exit;
+$LDWend__Z12conwayThreadPcS_ii:
+	} // _Z12conwayThreadPcS_ii
+
