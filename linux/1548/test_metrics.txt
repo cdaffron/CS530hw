@@ -1,0 +1,92 @@
+==8096== NVPROF is profiling process 8096, command: ./a.out
+==8096== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+==8096== Profiling application: ./a.out
+==8096== Profiling result:
+==8096== Metric result:
+Invocations                     Metric Name              Metric Description         Min         Max         Avg
+Device "GeForce GT 640 (0)"
+	Kernel: conwayThread(char*, char*, int, int)
+        100        l1_cache_global_hit_rate              L1 Global Hit Rate       0.00%       0.00%       0.00%
+        100               branch_efficiency               Branch Efficiency     100.00%     100.00%     100.00%
+        100         l1_cache_local_hit_rate               L1 Local Hit Rate       0.00%       0.00%       0.00%
+        100                   sm_efficiency         Multiprocessor Activity      91.08%      93.26%      92.16%
+        100                             ipc                    Executed IPC    2.418415    3.003499    2.533046
+        100              achieved_occupancy              Achieved Occupancy    0.834557    0.852471    0.845256
+        100        gld_requested_throughput  Requested Global Load Throughp  9.1385GB/s  9.1694GB/s  9.1507GB/s
+        100        gst_requested_throughput  Requested Global Store Through  1.0154GB/s  1.0188GB/s  1.0167GB/s
+        100          sm_efficiency_instance         Multiprocessor Activity      90.96%      92.99%      92.17%
+        100                    ipc_instance                    Executed IPC    2.399973    3.055316    2.524246
+        100            inst_replay_overhead     Instruction Replay Overhead    0.116947    0.146994    0.140551
+        100          shared_replay_overhead   Shared Memory Replay Overhead    0.000000    0.000000    0.000000
+        100          global_replay_overhead   Global Memory Replay Overhead    0.010714    0.010714    0.010714
+        100    global_cache_replay_overhead  Global Memory Cache Replay Ove    0.000000    0.000000    0.000000
+        100              tex_cache_hit_rate          Texture Cache Hit Rate       0.00%       0.00%       0.00%
+        100            tex_cache_throughput        Texture Cache Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+        100            dram_read_throughput   Device Memory Read Throughput  3.9692MB/s  17.907GB/s  749.46MB/s
+        100           dram_write_throughput  Device Memory Write Throughput  1.0195GB/s  1.1397GB/s  1.0303GB/s
+        100                  gst_throughput         Global Store Throughput  1.8335GB/s  2.0710GB/s  1.9379GB/s
+        100                  gld_throughput          Global Load Throughput  15.231GB/s  15.282GB/s  15.251GB/s
+        100           local_replay_overhead  Local Memory Cache Replay Over    0.000000    0.000000    0.000000
+        100               shared_efficiency        Shared Memory Efficiency       0.00%       0.00%       0.00%
+        100                  gld_efficiency   Global Memory Load Efficiency      60.00%      60.00%      60.00%
+        100                  gst_efficiency  Global Memory Store Efficiency      48.72%      55.50%      52.49%
+        100             l2_l1_read_hit_rate          L2 Hit Rate (L1 Reads)      99.66%      99.97%      99.91%
+        100        l2_texture_read_hit_rate           L2 Hit Rate (Texture)       0.00%       0.00%       0.00%
+        100           l2_l1_read_throughput        L2 Throughput (L1 Reads)  15.231GB/s  15.282GB/s  15.251GB/s
+        100      l2_texture_read_throughput         L2 Throughput (Texture)  0.00000B/s  0.00000B/s  0.00000B/s
+        100           local_memory_overhead           Local Memory Overhead       0.00%       0.00%       0.00%
+        100                      issued_ipc                      Issued IPC    2.760817    3.321594    2.901495
+        100                   inst_per_warp           Instructions per warp  140.000000  140.000000  140.000000
+        100          issue_slot_utilization          Issue Slot Utilization      51.64%      62.38%      53.58%
+        100  local_load_transactions_per_re  Local Memory Load Transactions    0.000000    0.000000    0.000000
+        100  local_store_transactions_per_r  Local Memory Store Transaction    0.000000    0.000000    0.000000
+        100  shared_load_transactions_per_r  Shared Memory Load Transaction    0.000000    0.000000    0.000000
+        100  shared_store_transactions_per_  Shared Memory Store Transactio    0.000000    0.000000    0.000000
+        100    gld_transactions_per_request  Global Load Transactions Per R    1.166667    1.166667    1.166667
+        100    gst_transactions_per_request  Global Store Transactions Per     0.900879    1.000000    0.950830
+        100         local_load_transactions         Local Load Transactions           0           0           0
+        100        local_store_transactions        Local Store Transactions           0           0           0
+        100        shared_load_transactions        Shared Load Transactions           0           0           0
+        100       shared_store_transactions       Shared Store Transactions           0           0           0
+        100                gld_transactions        Global Load Transactions       21504       21504       21504
+        100                gst_transactions       Global Store Transactions        3690        4096        3894
+        100        sysmem_read_transactions  System Memory Read Transaction           0           0           0
+        100       sysmem_write_transactions  System Memory Write Transactio           0          18           5
+        100          tex_cache_transactions      Texture Cache Transactions           0           0           0
+        100          dram_read_transactions  Device Memory Read Transaction           8       18040         537
+        100         dram_write_transactions  Device Memory Write Transactio        2051        2252        2069
+        100            l2_read_transactions            L2 Read Transactions       30736       30780       30748
+        100           l2_write_transactions           L2 Write Transactions        3695        4192        3908
+        100           local_load_throughput    Local Memory Load Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+        100          local_store_throughput   Local Memory Store Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+        100          shared_load_throughput   Shared Memory Load Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+        100         shared_store_throughput  Shared Memory Store Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+        100              l2_read_throughput           L2 Throughput (Reads)  15.242GB/s  15.295GB/s  15.265GB/s
+        100             l2_write_throughput          L2 Throughput (Writes)  1.8365GB/s  2.0710GB/s  1.9402GB/s
+        100          sysmem_read_throughput   System Memory Read Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+        100         sysmem_write_throughput  System Memory Write Throughput  0.00000B/s  6.9490MB/s  2.6115MB/s
+        100                       cf_issued  Issued Control-Flow Instructio        4096        4096        4096
+        100                     cf_executed  Executed Control-Flow Instruct        8192        8192        8192
+        100                     ldst_issued  Issued Load/Store Instructions       28140       32379       30976
+        100                   ldst_executed  Executed Load/Store Instructio       22528       22528       22528
+        100                        flops_sp                   FLOPS(Single)           0           0           0
+        100                    flops_sp_add               FLOPS(Single Add)           0           0           0
+        100                    flops_sp_mul               FLOPS(Single Mul)           0           0           0
+        100                    flops_sp_fma               FLOPS(Single FMA)           0           0           0
+        100                        flops_dp                   FLOPS(Double)           0           0           0
+        100                    flops_dp_add               FLOPS(Double Add)           0           0           0
+        100                    flops_dp_mul               FLOPS(Double Mul)           0           0           0
+        100                    flops_dp_fma               FLOPS(Double FMA)           0           0           0
+        100                flops_sp_special           FLOPS(Single Special)      131072      131072      131072
+        100           l1_shared_utilization    L1/Shared Memory Utilization     Low (1)     Low (1)     Low (1)
+        100                  l2_utilization            L2 Cache Utilization     Low (1)     Low (1)     Low (1)
+        100                 tex_utilization       Texture Cache Utilization    Idle (0)    Idle (0)    Idle (0)
+        100                dram_utilization       Device Memory Utilization     Low (1)     Low (2)     Low (1)
+        100              sysmem_utilization       System Memory Utilization    Idle (0)     Low (1)    Idle (0)
+        100             ldst_fu_utilization  Load/Store Function Unit Utili     Low (3)     Low (3)     Low (3)
+        100              alu_fu_utilization  Arithmetic Function Unit Utili    High (7)    High (8)    High (7)
+        100               cf_fu_utilization  Control-Flow Function Unit Uti     Low (1)     Low (1)     Low (1)
+        100              tex_fu_utilization  Texture Function Unit Utilizat    Idle (0)    Idle (0)    Idle (0)
+        100                   inst_executed           Instructions Executed      286720      286720      286720
+        100                     inst_issued             Instructions Issued      320828      328915      326745
+        100                     issue_slots                     Issue Slots      238382      245466      243237

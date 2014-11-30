@@ -20,7 +20,25 @@ __device__ void coordsToIdx(const int row, const int col, int *idx, int rows, in
 __global__ void conwayThread(char *oldState, char *newState, int rows, int cols)
 {
   int idx = threadIdx.x + blockIdx.x * blockDim.x;
-  //printf("This is thread %d\n", idx);
+
+  __shared__ char localCopy[1024];
+  /*if( threadIdx.x == 0 )
+  {
+    for(int i = 0; i < 1024; i++)
+    {
+      localCopy[i] = oldState[idx + i];
+    }
+
+    for(int i = 0; i < 1024; i++)
+    {
+      newState[i] = localCopy[i];
+    }
+  }*/
+  localCopy[threadIdx.x] = oldState[idx];
+
+  return;
+
+  //__syncthreads();
   if (idx >= rows * cols)
     return;
 
@@ -38,8 +56,6 @@ __global__ void conwayThread(char *oldState, char *newState, int rows, int cols)
   int tempCol;
   int tempIdx;
 
-  //__syncthreads();
-
   //printf("Thread: %d continuing\n", idx);
 
   // check left neighbor
@@ -50,7 +66,7 @@ __global__ void conwayThread(char *oldState, char *newState, int rows, int cols)
   coordsToIdx(tempRow, tempCol, &tempIdx, rows, cols);
   //if(idx == 0)
     //printf("Checking %d - %d, %d\n", tempIdx, tempRow, tempCol);
-  if (oldState[tempIdx] == 1)
+  if (localCopy[tempIdx] == 1)
     numLiveNeighbors++;
 
 
@@ -63,7 +79,7 @@ __global__ void conwayThread(char *oldState, char *newState, int rows, int cols)
   coordsToIdx(tempRow, tempCol, &tempIdx, rows, cols);
   //if(idx == 0)
     //printf("Checking %d - %d, %d\n", tempIdx, tempRow, tempCol);
-  if (oldState[tempIdx] == 1)
+  if (localCopy[tempIdx] == 1)
     numLiveNeighbors++;
 
 
@@ -74,7 +90,7 @@ __global__ void conwayThread(char *oldState, char *newState, int rows, int cols)
   coordsToIdx(tempRow, tempCol, &tempIdx, rows, cols);
   //if(idx == 0)
     //printf("Checking %d - %d, %d\n", tempIdx, tempRow, tempCol);
-  if (oldState[tempIdx] == 1)
+  if (localCopy[tempIdx] == 1)
     numLiveNeighbors++;
 
   tempRow = rowIdx - 1;
@@ -86,7 +102,7 @@ __global__ void conwayThread(char *oldState, char *newState, int rows, int cols)
   coordsToIdx(tempRow, tempCol, &tempIdx, rows, cols);
   //if(idx == 0)
     //printf("Checking %d - %d, %d\n", tempIdx, tempRow, tempCol);
-  if (oldState[tempIdx] == 1)
+  if (localCopy[tempIdx] == 1)
     numLiveNeighbors++;
 
   tempRow = rowIdx;
@@ -96,7 +112,7 @@ __global__ void conwayThread(char *oldState, char *newState, int rows, int cols)
   coordsToIdx(tempRow, tempCol, &tempIdx, rows, cols);
   //if(idx == 0)
     //printf("Checking %d - %d, %d\n", tempIdx, tempRow, tempCol);
-  if (oldState[tempIdx] == 1)
+  if (localCopy[tempIdx] == 1)
     numLiveNeighbors++;
 
   tempRow = rowIdx + 1;
@@ -108,7 +124,7 @@ __global__ void conwayThread(char *oldState, char *newState, int rows, int cols)
   coordsToIdx(tempRow, tempCol, &tempIdx, rows, cols);
   //if(idx == 0)
     //printf("Checking %d - %d, %d\n", tempIdx, tempRow, tempCol);
-  if (oldState[tempIdx] == 1)
+  if (localCopy[tempIdx] == 1)
     numLiveNeighbors++;
 
   tempRow = rowIdx + 1;
@@ -118,7 +134,7 @@ __global__ void conwayThread(char *oldState, char *newState, int rows, int cols)
   coordsToIdx(tempRow, tempCol, &tempIdx, rows, cols);
   //if(idx == 0)
     //printf("Checking %d - %d, %d\n", tempIdx, tempRow, tempCol);
-  if (oldState[tempIdx] == 1)
+  if (localCopy[tempIdx] == 1)
     numLiveNeighbors++;
 
   tempRow = rowIdx + 1;
@@ -130,10 +146,10 @@ __global__ void conwayThread(char *oldState, char *newState, int rows, int cols)
   coordsToIdx(tempRow, tempCol, &tempIdx, rows, cols);
   //if(idx == 0)
     //printf("Checking %d - %d, %d\n", tempIdx, tempRow, tempCol);
-  if (oldState[tempIdx] == 1)
+  if (localCopy[tempIdx] == 1)
     numLiveNeighbors++;
 
-  if (oldState[idx] == 1)
+  if (localCopy[idx] == 1)
   {
     if (numLiveNeighbors < 2 || numLiveNeighbors > 3)
     {
@@ -182,7 +198,7 @@ int main()
   //const int a[arraySize] = { 1, 2, 3, 4, 5 };
   //const int b[arraySize] = { 10, 20, 30, 40, 50 };
   //int c[arraySize] = { 0 };
-  const int iterations = 100;
+  const int iterations = 1;
   const int rows = 256;
   const int cols = 256;
   const int boardSize = rows * cols;
@@ -191,8 +207,6 @@ int main()
 
   char *gpu_prevState = 0;
   char *gpu_nextState = 0;
-
-  srand(0);
 
   for (int i = 0; i < boardSize; i++)
     prevState[i] = rand() % 2;
@@ -207,14 +221,14 @@ int main()
   errors = cudaGetDeviceProperties(&props, 0);
 
   int nBlocks;
-  //printf("Max threads: %d\n", props.maxThreadsPerBlock);
+  printf("Max threads: %d\n", props.maxThreadsPerBlock);
   int temp = (boardSize + (props.maxThreadsPerBlock - (boardSize % props.maxThreadsPerBlock)));
-  //printf("Temp: %d\n", temp);
+  printf("Temp: %d\n", temp);
   if ((boardSize % props.maxThreadsPerBlock) != 0)
     nBlocks = (boardSize + (props.maxThreadsPerBlock - (boardSize % props.maxThreadsPerBlock))) / props.maxThreadsPerBlock;
   else
     nBlocks = boardSize / props.maxThreadsPerBlock;
-  //printf("Blocks: %d\n", nBlocks);
+  printf("Blocks: %d\n", nBlocks);
 
   if (errors != cudaSuccess)
   {
@@ -251,13 +265,14 @@ int main()
   }
   for (int i = 0; i < iterations; i++)
   {
-    //printf("On iteration %d\n", i);
+    printf("On iteration %d\n", i);
     conwayThread <<<nBlocks, props.maxThreadsPerBlock>>>(gpu_prevState, gpu_nextState, rows, cols);
 
     errors = cudaGetLastError();
     if (errors != cudaSuccess)
     {
       printf("Error launching kernel\n");
+      printf("%s\n", cudaGetErrorString(errors));
       exit(0);
     }
 
@@ -268,11 +283,11 @@ int main()
       exit(0);
     }
 
-    // Copy through host
+    // Copy through the host
     //cudaMemcpy(nextState, gpu_nextState, boardSize * sizeof(char), cudaMemcpyDeviceToHost);
     //cudaMemcpy(gpu_prevState, nextState, boardSize * sizeof(char), cudaMemcpyHostToDevice);
 
-    // Copy through device
+    // Copy directly
     cudaMemcpy(gpu_prevState, gpu_nextState, boardSize * sizeof(char), cudaMemcpyDeviceToDevice);
   }
   cudaMemcpy(nextState, gpu_nextState, boardSize * sizeof(char), cudaMemcpyDeviceToHost);

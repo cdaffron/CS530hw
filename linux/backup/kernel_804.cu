@@ -182,9 +182,9 @@ int main()
   //const int a[arraySize] = { 1, 2, 3, 4, 5 };
   //const int b[arraySize] = { 10, 20, 30, 40, 50 };
   //int c[arraySize] = { 0 };
-  const int iterations = 100;
-  const int rows = 256;
-  const int cols = 256;
+  const int iterations = 1;
+  const int rows = 9;
+  const int cols = 9;
   const int boardSize = rows * cols;
   char prevState[boardSize];
   char nextState[boardSize];
@@ -268,14 +268,10 @@ int main()
       exit(0);
     }
 
-    // Copy through host
-    //cudaMemcpy(nextState, gpu_nextState, boardSize * sizeof(char), cudaMemcpyDeviceToHost);
-    //cudaMemcpy(gpu_prevState, nextState, boardSize * sizeof(char), cudaMemcpyHostToDevice);
-
-    // Copy through device
-    cudaMemcpy(gpu_prevState, gpu_nextState, boardSize * sizeof(char), cudaMemcpyDeviceToDevice);
+    cudaMemcpy(nextState, gpu_nextState, boardSize * sizeof(char), cudaMemcpyDeviceToHost);
+    //printBoard(nextState, rows, cols);
+    cudaMemcpy(gpu_prevState, nextState, boardSize * sizeof(char), cudaMemcpyHostToDevice);
   }
-  cudaMemcpy(nextState, gpu_nextState, boardSize * sizeof(char), cudaMemcpyDeviceToHost);
 
   printf("Final state\n");
   printBoard(nextState, rows, cols);

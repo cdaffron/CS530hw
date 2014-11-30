@@ -1,1 +1,2 @@
 nvcc -ptx -Xopencc="-LIST:source=on" kernel.cu
+nvcc -arch=sm_30 -ptx --source-in-ptx kernel.cu

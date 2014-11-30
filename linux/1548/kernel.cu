@@ -192,8 +192,6 @@ int main()
   char *gpu_prevState = 0;
   char *gpu_nextState = 0;
 
-  srand(0);
-
   for (int i = 0; i < boardSize; i++)
     prevState[i] = rand() % 2;
 
@@ -207,14 +205,14 @@ int main()
   errors = cudaGetDeviceProperties(&props, 0);
 
   int nBlocks;
-  //printf("Max threads: %d\n", props.maxThreadsPerBlock);
+  printf("Max threads: %d\n", props.maxThreadsPerBlock);
   int temp = (boardSize + (props.maxThreadsPerBlock - (boardSize % props.maxThreadsPerBlock)));
-  //printf("Temp: %d\n", temp);
+  printf("Temp: %d\n", temp);
   if ((boardSize % props.maxThreadsPerBlock) != 0)
     nBlocks = (boardSize + (props.maxThreadsPerBlock - (boardSize % props.maxThreadsPerBlock))) / props.maxThreadsPerBlock;
   else
     nBlocks = boardSize / props.maxThreadsPerBlock;
-  //printf("Blocks: %d\n", nBlocks);
+  printf("Blocks: %d\n", nBlocks);
 
   if (errors != cudaSuccess)
   {
@@ -251,7 +249,7 @@ int main()
   }
   for (int i = 0; i < iterations; i++)
   {
-    //printf("On iteration %d\n", i);
+    printf("On iteration %d\n", i);
     conwayThread <<<nBlocks, props.maxThreadsPerBlock>>>(gpu_prevState, gpu_nextState, rows, cols);
 
     errors = cudaGetLastError();
@@ -268,14 +266,10 @@ int main()
       exit(0);
     }
 
-    // Copy through host
-    //cudaMemcpy(nextState, gpu_nextState, boardSize * sizeof(char), cudaMemcpyDeviceToHost);
-    //cudaMemcpy(gpu_prevState, nextState, boardSize * sizeof(char), cudaMemcpyHostToDevice);
-
-    // Copy through device
-    cudaMemcpy(gpu_prevState, gpu_nextState, boardSize * sizeof(char), cudaMemcpyDeviceToDevice);
+    cudaMemcpy(nextState, gpu_nextState, boardSize * sizeof(char), cudaMemcpyDeviceToHost);
+    //printBoard(nextState, rows, cols);
+    cudaMemcpy(gpu_prevState, nextState, boardSize * sizeof(char), cudaMemcpyHostToDevice);
   }
-  cudaMemcpy(nextState, gpu_nextState, boardSize * sizeof(char), cudaMemcpyDeviceToHost);
 
   printf("Final state\n");
   printBoard(nextState, rows, cols);
