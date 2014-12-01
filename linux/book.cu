@@ -2,6 +2,25 @@
 #include <stdlib.h>
 #include <sys/time.h>
 #include <cuda.h>
+
+void printBoard(unsigned char *board, int rows, int cols)
+{
+  int counter = 0;
+  for(int i = 0; i < rows; i++)
+  {
+    for(int j = 0; j < cols; j++)
+    {
+      if(board[counter] == 0)
+        printf("-");
+      else
+        printf("0");
+      counter++;
+    }
+    printf("\n");
+  }
+  return;
+}
+
 __global__ void life (unsigned char *d_board,int iterations) {
     int i,row,col,rows,cols;
     unsigned char state,neighbors;
@@ -46,9 +65,13 @@ int main () {
     cudaMalloc((void **)&d_board,sizeof(unsigned char)*256*256);
     srand(0);
     for (i=0;i<256*256;i++) h_board[i]=rand()%2;
+    printf("Starting state\n");
+    printBoard(h_board, 256, 256);
     cudaMemcpy(d_board,h_board,sizeof(unsigned char)*256*256,cudaMemcpyHostToDevice);
     life <<<gDim,bDim>>> (d_board,iterations);
     cudaMemcpy(h_board,d_board,sizeof(unsigned char)*256*256,cudaMemcpyDeviceToHost);
+    printf("Ending state\n");
+    printBoard(h_board, 256, 256);
     free(h_board);
     cudaFree(d_board);
 }

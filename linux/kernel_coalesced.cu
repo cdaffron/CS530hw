@@ -15,44 +15,18 @@ __device__ void idxToCoords(const int idx, int *row, int *col, int rows, int col
 __device__ void coordsToIdx(const int row, const int col, int *idx, int rows, int cols)
 {
   *idx = row * cols + col;
+  return;
 }
 
 __global__ void conwayThread(char *oldState, char *newState, int rows, int cols)
 {
   int idx = threadIdx.x + blockIdx.x * blockDim.x;
-  extern __shared__ char dynAlloc[];
+//  extern __shared__ char dynAlloc[];
 
-  char * row = dynAlloc;
-  char * above = dynAlloc + cols;
-  char * below = dynAlloc + 2*cols;
+  //char * row = dynAlloc;
+  //char * above = dynAlloc + cols;
+  //char * below = dynAlloc + 2*cols;
 
-  bool coalesced;
-
-  int aboveC, belowC;
-  
-  int colIdx;
-  int rowIdx;
-  //int newIdx;
-  
-  idxToCoords(idx, &rowIdx, &colIdx, rows, cols);
-  //coordsToIdx(rowIdx, colIdx, &newIdx, rows, cols);
-
-  coordsToIdx(rowIdx - 1, colIdx, &aboveC, rows, cols);
-  coordsToIdx(rowIdx + 1, colIdx, &belowC, rows, cols);
-
-  __syncthreads();
-
-  row[threadIdx.x] = oldState[idx];
-
-  __syncthreads();
-
-  above[threadIdx.x] = oldState[aboveC];
-
-  __syncthreads();
-
-  below[threadIdx.x] = oldState[belowC];
-
-  __syncthreads();
   //__shared__ char localCopy[1024];
   //extern __shared__ char localCopy[];
 
@@ -76,7 +50,12 @@ __global__ void conwayThread(char *oldState, char *newState, int rows, int cols)
   //if (idx >= rows * cols)
   //  return;
 
+  int colIdx;
+  int rowIdx;
+  int newIdx;
 
+  idxToCoords(idx, &rowIdx, &colIdx, rows, cols);
+  coordsToIdx(rowIdx, colIdx, &newIdx, rows, cols);
 
   //printf("Block: %d, Blockdim: %d, Thread: %d, Overall %d: row %d, col %d, newIdx %d\n", blockIdx.x, blockDim.x, threadIdx.x, idx, rowIdx, colIdx, newIdx);
 
@@ -87,49 +66,23 @@ __global__ void conwayThread(char *oldState, char *newState, int rows, int cols)
   char tempNew;
   char tempVal;
 
-  coalesced = true;
-
-  if( row[threadIdx.x] != oldState[idx] )
-    printf("BAD!!!!!!!!!!!!!!!!!!!\n");
-
   //printf("Thread: %d continuing\n", idx);
 
   // check left neighbor
   tempRow = rowIdx;
   tempCol = colIdx - 1;
   if (tempCol < 0)
-  {
     tempCol = cols - 1;
-    coalesced = false;
-  }
-  if( threadIdx.x == 0 )
-    coalesced = false;
   coordsToIdx(tempRow, tempCol, &tempIdx, rows, cols);
-  __syncthreads();
-  if( coalesced )
-  {
-    if( threadIdx.x == 0 )
-    {
-      printf("Index is %d, R = %d, C = %d\n", idx, tempRow, tempCol);
-    }
-    tempVal = row[threadIdx.x - 1];
-    if(tempVal != oldState[tempIdx])
-    {
-      printf("Bad: tIdx %d, row %d, col %d, nRow %d, nCol %d\n", threadIdx.x, rowIdx, colIdx, tempRow, tempCol);
-      //exit(0);
-    }
-
-  }
-  __syncthreads();
-  if( !coalesced )
-  {
-    tempVal = oldState[tempIdx];
-  }
-  //return;
-  
-  //if (oldState[tempIdx] == 1)
-  if(tempVal == 1)
+  //if(idx == 0)
+    //printf("Checking %d - %d, %d\n", tempIdx, tempRow, tempCol);
+  if (oldState[tempIdx] == 1)
     numLiveNeighbors++;
+  //tempVal = oldState[tempIdx];
+  //__syncthreads();
+
+  //if(tempVal == 1)
+    //numLiveNeighbors++;
 
 
   tempRow = rowIdx - 1;
@@ -379,7 +332,7 @@ int main()
   for (int i = 0; i < iterations; i++)
   {
     printf("On iteration %d\n", i);
-    conwayThread <<<nBlocks, props.maxThreadsPerBlock, 3 * props.maxThreadsPerBlock * sizeof(char)>>>(gpu_prevState, gpu_nextState, rows, cols);
+    conwayThread <<<nBlocks * 4, props.maxThreadsPerBlock / 4>>>(gpu_prevState, gpu_nextState, rows, cols);
 
     errors = cudaGetLastError();
     if (errors != cudaSuccess)
